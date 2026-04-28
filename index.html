@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AutoDiag Pro — Diagnostic DTC Voitures Importées</title>
+<style>
+:root{--p:#e84118;--pd:#c0392b;--bg:#0d0d0d;--s:#1a1a1a;--s2:#242424;--b:#333;--t:#f0f0f0;--m:#888;--g:#2ecc71;--y:#f39c12;--r:#e74c3c;--bl:#3498db;--pu:#9b59b6;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--t);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;}
+::-webkit-scrollbar{width:6px;} ::-webkit-scrollbar-track{background:var(--bg);} ::-webkit-scrollbar-thumb{background:var(--b);border-radius:3px;}
+header{background:linear-gradient(135deg,#1a1a1a,#2d0a0a);border-bottom:2px solid var(--p);padding:0 2rem;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;height:64px;}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;}
+.logo-icon{font-size:2rem;}
+.logo-text{font-size:1.4rem;font-weight:800;color:var(--p);letter-spacing:-0.5px;}
+.logo-sub{font-size:0.7rem;color:var(--m);letter-spacing:2px;text-transform:uppercase;}
+.hnav{display:flex;gap:1.5rem;align-items:center;}
+.hnav a{color:var(--m);text-decoration:none;font-size:0.85rem;transition:color .2s;}
+.hnav a:hover{color:var(--t);}
+.badge-count{background:var(--p);color:#fff;font-size:0.7rem;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:4px;}
+
+.hero{background:linear-gradient(135deg,#1a0505,#0d0d0d 60%);padding:3.5rem 2rem 2.5rem;text-align:center;border-bottom:1px solid var(--b);}
+.hero h1{font-size:2.6rem;font-weight:900;margin-bottom:0.4rem;}
+.hero h1 span{color:var(--p);}
+.hero p{color:var(--m);font-size:1rem;margin-bottom:1.8rem;}
+.stats-row{display:flex;justify-content:center;gap:2rem;margin-bottom:2rem;flex-wrap:wrap;}
+.stat{text-align:center;}
+.stat-num{font-size:1.6rem;font-weight:900;color:var(--p);}
+.stat-lbl{font-size:0.72rem;color:var(--m);text-transform:uppercase;letter-spacing:1px;}
+
+.search-box{max-width:750px;margin:0 auto;background:var(--s);border:2px solid var(--b);border-radius:16px;padding:1.5rem;transition:border-color .2s;}
+.search-box:focus-within{border-color:var(--p);}
+.search-tabs{display:flex;gap:0.5rem;margin-bottom:1rem;}
+.stab{background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:0.45rem 1rem;font-size:0.82rem;cursor:pointer;color:var(--m);transition:all .2s;}
+.stab.active{background:var(--p);color:#fff;border-color:var(--p);}
+.search-row{display:flex;gap:0.8rem;margin-bottom:0.8rem;}
+.si{flex:1;background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:0.85rem 1.2rem;color:var(--t);font-size:1.1rem;font-family:'Courier New',monospace;text-transform:uppercase;letter-spacing:2px;outline:none;transition:border-color .2s;}
+.si:focus{border-color:var(--p);}
+.si::placeholder{color:var(--m);letter-spacing:0;text-transform:none;font-family:'Segoe UI',sans-serif;font-size:0.9rem;}
+#symptomInput{text-transform:none;letter-spacing:0;font-family:'Segoe UI',sans-serif;font-size:0.95rem;}
+.btn{background:var(--p);color:#fff;border:none;border-radius:10px;padding:0.85rem 1.8rem;font-size:0.95rem;font-weight:700;cursor:pointer;transition:background .2s,transform .1s;white-space:nowrap;}
+.btn:hover{background:var(--pd);transform:scale(1.02);}
+.btn:active{transform:scale(0.98);}
+.vsel{display:flex;gap:0.7rem;flex-wrap:wrap;}
+.vsel select{flex:1;min-width:130px;background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:0.55rem 0.8rem;color:var(--t);font-size:0.82rem;outline:none;cursor:pointer;}
+.vsel select:focus{border-color:var(--p);}
+
+main{max-width:1200px;margin:0 auto;padding:2rem;}
+.result-area{margin-bottom:2rem;}
+.rc{background:var(--s);border:1px solid var(--b);border-radius:16px;overflow:hidden;animation:fadeIn .3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.rh{background:linear-gradient(135deg,#2d0a0a,#1a1a1a);padding:1.4rem 1.8rem;display:flex;align-items:flex-start;gap:1.2rem;border-bottom:1px solid var(--b);flex-wrap:wrap;}
+.dtc-badge{background:var(--p);color:#fff;font-family:'Courier New',monospace;font-size:1.5rem;font-weight:900;padding:0.45rem 1.1rem;border-radius:10px;letter-spacing:2px;white-space:nowrap;flex-shrink:0;}
+.rmeta{flex:1;min-width:200px;}
+.rtitle{font-size:1.2rem;font-weight:700;margin-bottom:0.3rem;line-height:1.3;}
+.rsys{color:var(--m);font-size:0.85rem;margin-bottom:0.6rem;}
+.sbadge{display:inline-flex;align-items:center;gap:5px;padding:0.25rem 0.7rem;border-radius:6px;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+.sl{background:rgba(46,204,113,.2);color:var(--g);border:1px solid rgba(46,204,113,.4);}
+.sm{background:rgba(243,156,18,.2);color:var(--y);border:1px solid rgba(243,156,18,.4);}
+.sh{background:rgba(231,76,60,.2);color:var(--r);border:1px solid rgba(231,76,60,.4);}
+.sc{background:rgba(231,76,60,.4);color:#ff6b6b;border:1px solid var(--r);animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.7;}}
+.cost-box{background:var(--s2);border-radius:10px;padding:0.8rem 1.1rem;border-left:3px solid var(--bl);min-width:160px;}
+.cost-lbl{font-size:0.72rem;color:var(--m);margin-bottom:0.2rem;}
+.cost-val{font-size:1.3rem;font-weight:800;color:var(--bl);}
+.rb{padding:1.4rem 1.8rem;display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;}
+@media(max-width:650px){.rb{grid-template-columns:1fr;}}
+.ib h3{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--p);margin-bottom:0.7rem;display:flex;align-items:center;gap:5px;}
+.cl{list-style:none;}
+.cl li{padding:0.45rem 0.8rem;background:var(--s2);border-radius:6px;margin-bottom:0.35rem;font-size:0.85rem;display:flex;align-items:center;gap:7px;border-left:3px solid transparent;}
+.cl li.l1{border-color:var(--r);}
+.cl li.l2{border-color:var(--y);}
+.cl li.l3{border-color:var(--g);}
+.pt{font-size:0.68rem;color:var(--m);margin-left:auto;white-space:nowrap;}
+.sl2{list-style:none;counter-reset:step;}
+.sl2 li{counter-increment:step;padding:.7rem 1rem .7rem 2.8rem;position:relative;background:var(--s2);border-radius:7px;margin-bottom:.4rem;font-size:.85rem;line-height:1.5;}
+.sl2 li::before{content:counter(step);position:absolute;left:.7rem;top:50%;transform:translateY(-50%);background:var(--p);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;}
+.pg{display:flex;flex-direction:column;gap:.35rem;}
+.pi{display:flex;align-items:center;justify-content:space-between;padding:.45rem .75rem;background:var(--s2);border-radius:6px;font-size:.82rem;}
+.pp{color:var(--m);font-size:.75rem;}
+.alert{border-radius:9px;padding:.85rem 1.1rem;margin-bottom:.8rem;display:flex;align-items:flex-start;gap:.7rem;font-size:.87rem;}
+.aw{background:rgba(243,156,18,.1);border:1px solid rgba(243,156,18,.3);color:var(--y);}
+.ad{background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.3);color:var(--r);}
+.ai{background:rgba(52,152,219,.1);border:1px solid rgba(52,152,219,.3);color:var(--bl);}
+.ai2{font-size:1.1rem;flex-shrink:0;}
+
+.tabs{display:flex;gap:.4rem;margin-bottom:1.4rem;border-bottom:1px solid var(--b);padding-bottom:0;flex-wrap:wrap;}
+.tb{background:none;border:none;color:var(--m);padding:.55rem 1.1rem;font-size:.85rem;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .2s;}
+.tb.active{color:var(--p);border-bottom-color:var(--p);font-weight:600;}
+.tb:hover{color:var(--t);}
+.tc{display:none;}
+.tc.active{display:block;}
+
+.sec-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--p);margin-bottom:1.1rem;display:flex;align-items:center;gap:8px;}
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.7rem;margin-bottom:1.5rem;}
+.cc{background:var(--s);border:1px solid var(--b);border-radius:9px;padding:.75rem 1rem;cursor:pointer;transition:border-color .2s,background .2s;display:flex;align-items:center;gap:.75rem;}
+.cc:hover{border-color:var(--p);background:rgba(232,65,24,.05);}
+.cc-code{font-family:'Courier New',monospace;font-weight:700;font-size:.87rem;color:var(--p);min-width:58px;}
+.cc-desc{font-size:.78rem;color:var(--m);line-height:1.3;}
+.dot{width:8px;height:8px;border-radius:50%;margin-left:auto;flex-shrink:0;}
+.dot.low{background:var(--g);}
+.dot.medium{background:var(--y);}
+.dot.high{background:var(--r);}
+.dot.critical{background:var(--r);animation:pulse 1s infinite;}
+
+.bg{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.8rem;margin-bottom:1.5rem;}
+.bcard{background:var(--s);border:1px solid var(--b);border-radius:11px;padding:.9rem;text-align:center;cursor:pointer;transition:border-color .2s,transform .2s;}
+.bcard:hover{border-color:var(--p);transform:translateY(-2px);}
+.bcard.active{border-color:var(--p);background:rgba(232,65,24,.1);}
+.bicon{font-size:1.8rem;margin-bottom:.25rem;}
+.bname{font-size:.82rem;font-weight:600;}
+.borigin{font-size:.68rem;color:var(--m);}
+
+.obd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.9rem;margin-bottom:1.5rem;}
+.ocard{background:var(--s);border:1px solid var(--b);border-radius:11px;padding:1.1rem;}
+.ocard h4{font-size:.9rem;margin-bottom:.45rem;}
+.ocard p{font-size:.8rem;color:var(--m);line-height:1.6;}
+
+.tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.9rem;}
+.tcard{background:var(--s);border:1px solid var(--b);border-radius:11px;padding:1.1rem;}
+.tcard h4{font-size:.87rem;margin-bottom:.3rem;}
+.tcard p{font-size:.78rem;color:var(--m);line-height:1.5;}
+
+.filter-row{display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap;}
+.fchip{background:var(--s2);border:1px solid var(--b);border-radius:7px;padding:.35rem .85rem;font-size:.78rem;cursor:pointer;color:var(--m);transition:all .2s;}
+.fchip.active{background:var(--p);color:#fff;border-color:var(--p);}
+.fchip:hover{border-color:var(--p);}
+
+.symptom-results{display:flex;flex-direction:column;gap:.5rem;margin-top:.5rem;}
+.sr-item{background:var(--s);border:1px solid var(--b);border-radius:9px;padding:.75rem 1rem;cursor:pointer;display:flex;align-items:center;gap:.75rem;transition:border-color .2s;}
+.sr-item:hover{border-color:var(--p);}
+
+footer{background:var(--s);border-top:1px solid var(--b);padding:1.8rem 2rem;text-align:center;color:var(--m);font-size:.8rem;margin-top:3rem;}
+.hidden{display:none!important;}
+.full-col{grid-column:1/-1;}
+
+.print-btn{background:var(--s2);border:1px solid var(--b);color:var(--t);border-radius:8px;padding:.4rem .9rem;font-size:.78rem;cursor:pointer;transition:border-color .2s;}
+.print-btn:hover{border-color:var(--p);}
+
+/* ── Advanced scanner styles ── */
+.scanner-tabs{display:flex;gap:.45rem;flex-wrap:wrap;margin-bottom:1.4rem;}
+.schip{background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:.4rem 1rem;font-size:.8rem;cursor:pointer;color:var(--m);transition:all .2s;white-space:nowrap;}
+.schip.active{background:var(--p);color:#fff;border-color:var(--p);}
+.schip:hover{border-color:var(--p);color:var(--t);}
+
+.scanner-panel{display:none;animation:fadeIn .25s ease;}
+.scanner-panel.active{display:block;}
+
+.sc-header{display:flex;align-items:center;gap:1.2rem;padding:1.2rem 1.5rem;border-radius:14px 14px 0 0;border:1px solid var(--b);border-bottom:none;flex-wrap:wrap;}
+.launch-color{background:linear-gradient(135deg,#1a0a00,#2a1500);}
+.vcds-color{background:linear-gradient(135deg,#000d1a,#001f3f);}
+.techstream-color{background:linear-gradient(135deg,#001a0a,#002d12);}
+.ista-color{background:linear-gradient(135deg,#0d0010,#1a0030);}
+.forscan-color{background:linear-gradient(135deg,#001020,#003366);}
+.autel-color{background:linear-gradient(135deg,#1a0000,#330000);}
+.hds-color{background:linear-gradient(135deg,#1a0005,#2d0010);}
+.consult-color{background:linear-gradient(135deg,#0d0d00,#1a1a00);}
+.star-color{background:linear-gradient(135deg,#0a0a0a,#1a1200);}
+.gds-color{background:linear-gradient(135deg,#00101a,#001e30);}
+
+.sc-logo{font-size:2.2rem;flex-shrink:0;}
+.sc-name{font-size:1.1rem;font-weight:800;margin-bottom:.2rem;}
+.sc-sub{font-size:.78rem;color:var(--m);}
+.sc-price{margin-left:auto;background:rgba(232,65,24,.15);border:1px solid rgba(232,65,24,.3);color:var(--p);font-weight:700;font-size:.82rem;padding:.4rem .9rem;border-radius:8px;white-space:nowrap;}
+
+.sc-body{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;padding:1.4rem;background:var(--s);border:1px solid var(--b);border-top:none;}
+@media(max-width:700px){.sc-body{grid-template-columns:1fr;}}
+.sc-col{}
+.sc-section-title{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--p);margin-bottom:.7rem;}
+.sc-list{list-style:none;display:flex;flex-direction:column;gap:.3rem;}
+.sc-list li{font-size:.83rem;padding:.35rem .6rem;background:var(--s2);border-radius:5px;border-left:2px solid var(--p);}
+.sc-steps{list-style:none;counter-reset:sc;display:flex;flex-direction:column;gap:.35rem;}
+.sc-steps li{counter-increment:sc;padding:.5rem .8rem .5rem 2.4rem;position:relative;background:var(--s2);border-radius:6px;font-size:.82rem;line-height:1.5;}
+.sc-steps li::before{content:counter(sc);position:absolute;left:.6rem;top:50%;transform:translateY(-50%);background:var(--p);color:#fff;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;}
+.sc-tags{display:flex;flex-wrap:wrap;gap:.35rem;}
+.sc-tag{background:rgba(52,152,219,.15);border:1px solid rgba(52,152,219,.3);color:var(--bl);font-size:.72rem;padding:.2rem .55rem;border-radius:5px;}
+
+.sc-cap-grid{display:flex;flex-wrap:wrap;gap:.4rem;padding:1rem 1.4rem;background:var(--s2);border:1px solid var(--b);border-top:none;border-radius:0 0 14px 14px;}
+.sc-cap{font-size:.75rem;padding:.3rem .7rem;border-radius:5px;font-weight:600;}
+.sc-cap.yes{background:rgba(46,204,113,.15);color:var(--g);border:1px solid rgba(46,204,113,.3);}
+.sc-cap.partial{background:rgba(243,156,18,.15);color:var(--y);border:1px solid rgba(243,156,18,.3);}
+.sc-cap.no{background:rgba(136,136,136,.1);color:var(--m);border:1px solid var(--b);}
+
+/* Comparison table */
+.cmp-table{width:100%;border-collapse:collapse;font-size:.82rem;min-width:600px;}
+.cmp-table th{background:var(--s2);color:var(--p);padding:.55rem .75rem;text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid var(--b);}
+.cmp-table td{padding:.5rem .75rem;border-bottom:1px solid var(--b);vertical-align:middle;}
+.cmp-table tr:hover td{background:rgba(232,65,24,.04);}
+.cmp-table tr:last-child td{border-bottom:none;}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="#">
+    <span class="logo-icon">🔧</span>
+    <div><div class="logo-text">AutoDiag Pro</div><div class="logo-sub">Diagnostic OBD2 & DTC</div></div>
+  </a>
+  <nav class="hnav">
+    <a href="#" onclick="switchTab('tab-common',document.querySelectorAll('.tb')[0]);return false;">Codes DTC <span class="badge-count" id="totalCount">0</span></a>
+    <a href="#" onclick="switchTab('tab-brands',document.querySelectorAll('.tb')[1]);return false;">Marques</a>
+    <a href="#" onclick="switchTab('tab-obd',document.querySelectorAll('.tb')[2]);return false;">OBD2</a>
+    <a href="#" onclick="switchTab('tab-tools',document.querySelectorAll('.tb')[3]);return false;">Outils</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <h1>Diagnostic Auto <span>DTC</span> Pro</h1>
+  <p>Identifiez et réparez tous les codes d'erreur — Japonaises · Européennes · Américaines · Coréennes</p>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-num" id="s1">0</div><div class="stat-lbl">Codes DTC</div></div>
+    <div class="stat"><div class="stat-num" id="s2">0</div><div class="stat-lbl">Marques</div></div>
+    <div class="stat"><div class="stat-num">6</div><div class="stat-lbl">Systèmes</div></div>
+    <div class="stat"><div class="stat-num">∞</div><div class="stat-lbl">Guides réparation</div></div>
+  </div>
+  <div class="search-box">
+    <div class="search-tabs">
+      <button class="stab active" onclick="setSearchMode('dtc',this)">🔍 Code DTC</button>
+      <button class="stab" onclick="setSearchMode('symptom',this)">🩺 Symptômes</button>
+      <button class="stab" onclick="setSearchMode('history',this)">📜 Historique</button>
+    </div>
+    <div id="dtcSearchPane">
+      <div class="search-row">
+        <input type="text" class="si" id="dtcInput" placeholder="Code DTC (ex: P0300, B1234, C0031…)" maxlength="6">
+        <button class="btn" onclick="searchDTC()">Analyser</button>
+      </div>
+    </div>
+    <div id="symptomSearchPane" class="hidden">
+      <div class="search-row">
+        <input type="text" class="si" id="symptomInput" placeholder="Décrivez le problème (ex: moteur tremble, voyant allumé…)">
+        <button class="btn" onclick="searchSymptom()">Chercher</button>
+      </div>
+      <div class="symptom-results" id="symptomResults"></div>
+    </div>
+    <div id="historyPane" class="hidden"></div>
+    <div class="vsel">
+      <select id="sel-make">
+        <option value="">— Marque —</option>
+        <optgroup label="🇯🇵 Japonaises">
+          <option>Toyota</option><option>Honda</option><option>Nissan</option><option>Mazda</option>
+          <option>Subaru</option><option>Mitsubishi</option><option>Suzuki</option><option>Lexus</option>
+          <option>Infiniti</option><option>Acura</option><option>Daihatsu</option><option>Isuzu</option>
+        </optgroup>
+        <optgroup label="🇩🇪 Allemandes">
+          <option>BMW</option><option>Mercedes-Benz</option><option>Volkswagen</option><option>Audi</option>
+          <option>Opel</option><option>Porsche</option>
+        </optgroup>
+        <optgroup label="🇫🇷 Françaises">
+          <option>Peugeot</option><option>Renault</option><option>Citroën</option>
+        </optgroup>
+        <optgroup label="🇬🇧 Britanniques">
+          <option>Land Rover</option><option>Jaguar</option><option>Mini</option>
+        </optgroup>
+        <optgroup label="🇸🇪 Scandinaves">
+          <option>Volvo</option><option>Saab</option>
+        </optgroup>
+        <optgroup label="🇮🇹 Italiennes">
+          <option>Fiat</option><option>Alfa Romeo</option>
+        </optgroup>
+        <optgroup label="🇺🇸 Américaines">
+          <option>Ford</option><option>Chevrolet</option><option>Dodge</option>
+          <option>Jeep</option><option>Chrysler</option><option>GMC</option><option>Cadillac</option>
+        </optgroup>
+        <optgroup label="🇰🇷 Coréennes">
+          <option>Hyundai</option><option>Kia</option><option>Ssangyong</option>
+        </optgroup>
+        <optgroup label="🇨🇳 Chinoises">
+          <option>Chery</option><option>Geely</option><option>BYD</option><option>Great Wall</option>
+        </optgroup>
+      </select>
+      <select id="sel-year">
+        <option value="">— Année —</option>
+        <option>2025</option><option>2024</option><option>2023</option><option>2022</option><option>2021</option>
+        <option>2020</option><option>2019</option><option>2018</option><option>2017</option><option>2016</option>
+        <option>2015</option><option>2014</option><option>2013</option><option>2012</option><option>2011</option>
+        <option>2010</option><option>2009</option><option>2008</option><option>2007</option><option>2006</option>
+        <option>2005</option><option>2004</option><option>2003</option><option>2002</option><option>2001</option>
+        <option>2000</option><option>1999</option><option>1998</option><option>1997</option>
+      </select>
+      <select id="sel-engine">
+        <option value="">— Moteur —</option>
+        <option>1.0L Essence</option><option>1.2L Essence</option><option>1.3L Essence</option>
+        <option>1.4L Essence</option><option>1.5L Essence</option><option>1.6L Essence</option>
+        <option>1.8L Essence</option><option>2.0L Essence</option><option>2.4L Essence</option>
+        <option>2.5L Essence</option><option>3.0L Essence</option><option>3.5L Essence</option>
+        <option>4.0L Essence</option><option>5.0L Essence</option><option>6.0L Essence</option>
+        <option>1.5L Diesel</option><option>1.6L Diesel</option><option>1.9L Diesel</option>
+        <option>2.0L Diesel</option><option>2.2L Diesel</option><option>2.5L Diesel</option>
+        <option>3.0L Diesel</option><option>Hybride</option><option>Hybride Rechargeable</option>
+        <option>Électrique</option>
+      </select>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="result-area" id="resultArea"></div>
+
+  <div class="tabs">
+    <button class="tb active" onclick="switchTab('tab-common',this)">⚡ Codes Fréquents</button>
+    <button class="tb" onclick="switchTab('tab-brands',this)">🚗 Par Marque</button>
+    <button class="tb" onclick="switchTab('tab-systems',this)">🔩 Par Système</button>
+    <button class="tb" onclick="switchTab('tab-obd',this)">🔌 Port OBD2</button>
+    <button class="tb" onclick="switchTab('tab-tools',this)">🛠️ Outils</button>
+    <button class="tb" onclick="switchTab('tab-glossary',this)">📖 Glossaire</button>
+  </div>
+
+  <div id="tab-common" class="tc active">
+    <div class="filter-row" id="filterRow"></div>
+    <div class="sec-title">⚡ Codes OBD2 les plus fréquents</div>
+    <div class="cg" id="commonCodesGrid"></div>
+  </div>
+
+  <div id="tab-brands" class="tc">
+    <div class="sec-title">🚗 Sélectionner une marque</div>
+    <div class="bg" id="brandsGrid"></div>
+    <div id="brandCodesArea"></div>
+  </div>
+
+  <div id="tab-systems" class="tc">
+    <div class="sec-title">🔩 Parcourir par système</div>
+    <div class="filter-row" id="sysFilterRow"></div>
+    <div class="cg" id="systemCodesGrid"></div>
+  </div>
+
+  <div id="tab-obd" class="tc">
+    <div class="sec-title">🔌 Localisation port OBD2 par marque</div>
+    <div class="alert ai"><span class="ai2">ℹ️</span>Le port OBD2 (EOBD) est obligatoire sur tous les véhicules essence depuis 2001 et diesel depuis 2003 en Europe. Il est généralement sous le tableau de bord côté conducteur.</div>
+    <div class="obd-grid">
+      <div class="ocard"><h4>🇯🇵 Toyota / Lexus</h4><p>Sous le tableau de bord gauche, près de la colonne de direction. Modèles récents: facile d'accès côté conducteur.</p></div>
+      <div class="ocard"><h4>🇯🇵 Honda / Acura</h4><p>Certains modèles: côté passager sous tableau de bord. La plupart: côté conducteur. Prévoir une lampe de poche.</p></div>
+      <div class="ocard"><h4>🇯🇵 Nissan / Infiniti</h4><p>Sous le tableau de bord gauche, souvent derrière un petit volet plastique. Visible sans démontage.</p></div>
+      <div class="ocard"><h4>🇯🇵 Mazda</h4><p>Côté conducteur sous le tableau de bord. Accessible directement, parfois protégé par couvercle.</p></div>
+      <div class="ocard"><h4>🇯🇵 Subaru / Mitsubishi</h4><p>Sous le tableau de bord côté conducteur, vers le centre. Peut nécessiter de se pencher légèrement.</p></div>
+      <div class="ocard"><h4>🇯🇵 Suzuki / Daihatsu</h4><p>Sous le tableau de bord gauche. Généralement sans couvercle, visible directement.</p></div>
+      <div class="ocard"><h4>🇩🇪 BMW / Mini</h4><p>Sous le tableau de bord gauche, à gauche de la colonne. Souvent dans compartiment dédié avec couvercle.</p></div>
+      <div class="ocard"><h4>🇩🇪 Mercedes-Benz</h4><p>Sous le tableau de bord à gauche. Certains modèles ont un couvercle arborant le logo MB.</p></div>
+      <div class="ocard"><h4>🇩🇪 Volkswagen / Audi / Skoda / Seat</h4><p>Sous le tableau de bord côté conducteur, à gauche. Souvent derrière une petite trappe plastique.</p></div>
+      <div class="ocard"><h4>🇫🇷 Peugeot / Citroën</h4><p>Sous la planche de bord côté conducteur. Parfois nécessite de regarder en bas à gauche.</p></div>
+      <div class="ocard"><h4>🇫🇷 Renault</h4><p>Sous le tableau de bord à gauche, généralement sans couvercle. Accès facile sur la majorité des modèles.</p></div>
+      <div class="ocard"><h4>🇸🇪 Volvo</h4><p>Sous le tableau de bord gauche. Modèles anciens: près du cendrier. Modèles récents: visible facilement.</p></div>
+      <div class="ocard"><h4>🇺🇸 Ford / Lincoln</h4><p>Sous le tableau de bord côté conducteur. Camions: parfois sous le tableau de bord central.</p></div>
+      <div class="ocard"><h4>🇺🇸 Chevrolet / GMC / Cadillac</h4><p>Sous le tableau de bord à gauche. Sur camionnettes: sous le tableau de bord central ou colonne direction.</p></div>
+      <div class="ocard"><h4>🇺🇸 Dodge / Jeep / Chrysler</h4><p>Sous le tableau de bord côté conducteur, généralement visible sans outil.</p></div>
+      <div class="ocard"><h4>🇰🇷 Hyundai / Kia</h4><p>Sous le tableau de bord gauche, près du pédalier. Accessible directement sans outils.</p></div>
+    </div>
+    <div class="sec-title" style="margin-top:1.5rem;">📋 Décodage des préfixes DTC</div>
+    <div class="cg">
+      <div class="cc"><div><div class="cc-code">P0xxx</div><div class="cc-desc">Powertrain générique OBD2 — Moteur, transmission, émissions</div></div></div>
+      <div class="cc"><div><div class="cc-code">P1xxx</div><div class="cc-desc">Powertrain constructeur — Codes spécifiques à la marque</div></div></div>
+      <div class="cc"><div><div class="cc-code">P2xxx</div><div class="cc-desc">Powertrain générique OBD2 (2e génération)</div></div></div>
+      <div class="cc"><div><div class="cc-code">B0xxx</div><div class="cc-desc">Body générique — Airbag, sièges, portes, carrosserie</div></div></div>
+      <div class="cc"><div><div class="cc-code">B1xxx</div><div class="cc-desc">Body constructeur — Spécifique marque</div></div></div>
+      <div class="cc"><div><div class="cc-code">C0xxx</div><div class="cc-desc">Chassis générique — ABS, ESP, direction, suspension</div></div></div>
+      <div class="cc"><div><div class="cc-code">U0xxx</div><div class="cc-desc">Network générique — Bus CAN, communication modules</div></div></div>
+      <div class="cc"><div><div class="cc-code">U1xxx</div><div class="cc-desc">Network constructeur — Protocoles spécifiques marque</div></div></div>
+    </div>
+  </div>
+
+  <div id="tab-tools" class="tc">
+
+    <!-- ── Scanner selector ── -->
+    <div class="sec-title">🔎 Choisir votre scanner avancé</div>
+    <div class="scanner-tabs" id="scannerTabs">
+      <button class="schip active" onclick="showScanner('launch',this)">Launch X431</button>
+      <button class="schip" onclick="showScanner('vcds',this)">VCDS (VAG)</button>
+      <button class="schip" onclick="showScanner('techstream',this)">Techstream Toyota</button>
+      <button class="schip" onclick="showScanner('ista',this)">ISTA BMW</button>
+      <button class="schip" onclick="showScanner('forscan',this)">FORScan Ford</button>
+      <button class="schip" onclick="showScanner('autel',this)">Autel MaxiSYS</button>
+      <button class="schip" onclick="showScanner('hds',this)">HDS Honda</button>
+      <button class="schip" onclick="showScanner('consult',this)">Consult Nissan</button>
+      <button class="schip" onclick="showScanner('star',this)">Star Mercedes</button>
+      <button class="schip" onclick="showScanner('gds',this)">GDS Hyundai/Kia</button>
+    </div>
+
+    <!-- LAUNCH X431 -->
+    <div class="scanner-panel active" id="sp-launch">
+      <div class="sc-header launch-color">
+        <div class="sc-logo">💻</div>
+        <div>
+          <div class="sc-name">Launch X431 Pro / Pro5 / PAD VII</div>
+          <div class="sc-sub">Scanner universel professionnel — 200+ marques — Android</div>
+        </div>
+        <div class="sc-price">300 – 2 500 €</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-col">
+          <div class="sc-section-title">Fonctions clés</div>
+          <ul class="sc-list">
+            <li>Lecture / effacement codes toutes ECUs (moteur, boîte, ABS, airbag…)</li>
+            <li>Données temps réel (graphique + enregistrement)</li>
+            <li>Tests actifs / actuateurs (injecteurs, vannes EGR, pompes…)</li>
+            <li>Codage & paramétrage ECU</li>
+            <li>Réinitialisation services : huile, DPF, TPMS, freins, Direction</li>
+            <li>Programmation / apprentissage injecteurs (diesel)</li>
+            <li>Calibration ADAS (caméras, radars)</li>
+            <li>Remote diagnostic (télé-assistance)</li>
+            <li>Oscilloscope intégré (X431 PAD VII)</li>
+          </ul>
+          <div class="sc-section-title" style="margin-top:1rem;">Marques couvertes</div>
+          <div class="sc-tags">
+            <span class="sc-tag">Toyota/Lexus</span><span class="sc-tag">Honda/Acura</span>
+            <span class="sc-tag">Nissan/Infiniti</span><span class="sc-tag">BMW/Mini</span>
+            <span class="sc-tag">Mercedes</span><span class="sc-tag">VW/Audi/Skoda</span>
+            <span class="sc-tag">Peugeot/Citroën</span><span class="sc-tag">Renault</span>
+            <span class="sc-tag">Ford/GM</span><span class="sc-tag">Hyundai/Kia</span>
+            <span class="sc-tag">+ 190 autres</span>
+          </div>
+        </div>
+        <div class="sc-col">
+          <div class="sc-section-title">Procédure type — Diagnostic moteur</div>
+          <ol class="sc-steps">
+            <li>Allumer le X431 → <em>Diagnostic</em> → sélectionner la marque ou <em>Auto-detect VIN</em></li>
+            <li>Choisir le modèle / motorisation (ou laisser scanner le VIN automatiquement)</li>
+            <li>Aller dans <em>Engine / ECM</em> → <em>Read Fault Codes</em></li>
+            <li>Noter les codes actifs (rouge) séparément des codes en mémoire (jaune)</li>
+            <li>Appuyer sur le code → <em>Code Details</em> pour voir le freeze frame et les données associées</li>
+            <li>Aller dans <em>Live Data</em> → sélectionner les PIDs utiles → activer le graphique</li>
+            <li>Faire le <em>Active Test</em> sur l'actionneur suspecté pour confirmer la panne</li>
+            <li>Après réparation → <em>Clear Fault Codes</em> → test routier → re-lire</li>
+          </ol>
+          <div class="sc-section-title" style="margin-top:1rem;">Conseils</div>
+          <div class="alert aw" style="margin:0;font-size:.8rem;">Toujours mettre à jour le logiciel avant intervention — Launch publie des mises à jour marques mensuellement. Abonnement mise à jour 1–2 ans inclus selon modèle.</div>
+        </div>
+      </div>
+      <div class="sc-cap-grid">
+        <div class="sc-cap yes">Lecture/Effacement codes</div>
+        <div class="sc-cap yes">Données temps réel</div>
+        <div class="sc-cap yes">Tests actifs</div>
+        <div class="sc-cap yes">Codage ECU</div>
+        <div class="sc-cap yes">Reset services</div>
+        <div class="sc-cap yes">TPMS</div>
+        <div class="sc-cap yes">ADAS calibration</div>
+        <div class="sc-cap yes">Remote diag</div>
+        <div class="sc-cap partial">Programmation clés</div>
+        <div class="sc-cap yes">DPF regen</div>
+      </div>
+    </div>
+
+    <!-- VCDS -->
+    <div class="scanner-panel hidden" id="sp-vcds">
+      <div class="sc-header vcds-color">
+        <div class="sc-logo">⚡</div>
+        <div>
+          <div class="sc-name">VCDS (VAG-COM Diagnostic System)</div>
+          <div class="sc-sub">Ross-Tech — Logiciel PC + interface USB — VW Group uniquement</div>
+        </div>
+        <div class="sc-price">300 – 400 €</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-col">
+          <div class="sc-section-title">Fonctions clés</div>
+          <ul class="sc-list">
+            <li>Accès à TOUS les modules (80+ contrôleurs par véhicule)</li>
+            <li>Codage long (Langcodierung) et codage court</li>
+            <li>Adaptation canaux (apprentissage position papillon, fenêtres…)</li>
+            <li>Mesure blocs (Messwertblöcke) — données temps réel groupées</li>
+            <li>Tests de sortie (actuation tests) sur tous actuateurs</li>
+            <li>Reset service, AdBlue, freins, volant</li>
+            <li>Apprentissage injecteurs TDI (IMA codes)</li>
+            <li>Journal des pannes avec détail OBD étendu VAG</li>
+            <li>Assistance en ligne (Ross-Tech Wiki)</li>
+          </ul>
+          <div class="sc-section-title" style="margin-top:1rem;">Marques couvertes</div>
+          <div class="sc-tags">
+            <span class="sc-tag">Volkswagen</span><span class="sc-tag">Audi</span>
+            <span class="sc-tag">Skoda</span><span class="sc-tag">SEAT</span>
+            <span class="sc-tag">Porsche (partiel)</span><span class="sc-tag">Lamborghini (partiel)</span>
+          </div>
+        </div>
+        <div class="sc-col">
+          <div class="sc-section-title">Procédure type — Codage module</div>
+          <ol class="sc-steps">
+            <li>Connecter l'interface VCDS (USB) → moteur coupé, clé sur contact</li>
+            <li>Ouvrir VCDS → <em>Select Control Module</em> → choisir le module (ex: 01 – Engine)</li>
+            <li><em>Fault Codes – 02</em> pour lire, <em>Clear Codes – 05</em> pour effacer</li>
+            <li><em>Measuring Blocks – 08</em> → entrer les numéros de blocs pertinents</li>
+            <li>Pour coder : <em>Coding – 07</em> → modifier la valeur (noter l'ancienne valeur avant !)</li>
+            <li>Pour adapter : <em>Adaptation – 10</em> → sélectionner le canal → modifier la valeur</li>
+            <li>Pour tester actuateurs : <em>Output Tests – 03</em> → suivre la séquence</li>
+            <li>Consulter <strong>ross-tech.com/vcds</strong> pour les valeurs exactes par véhicule</li>
+          </ol>
+          <div class="alert ai" style="margin:0;font-size:.8rem;">Toujours noter les valeurs originales avant tout codage. Un mauvais codage peut désactiver un système de sécurité ou empêcher le démarrage.</div>
+        </div>
+      </div>
+      <div class="sc-cap-grid">
+        <div class="sc-cap yes">Lecture/Effacement codes</div>
+        <div class="sc-cap yes">Données temps réel</div>
+        <div class="sc-cap yes">Tests actifs</div>
+        <div class="sc-cap yes">Codage ECU</div>
+        <div class="sc-cap yes">Adaptation canaux</div>
+        <div class="sc-cap yes">Reset services</div>
+        <div class="sc-cap no">ADAS calibration</div>
+        <div class="sc-cap no">Remote diag</div>
+        <div class="sc-cap partial">Programmation clés</div>
+        <div class="sc-cap yes">Injecteurs TDI</div>
+      </div>
+    </div>
+
+    <!-- TECHSTREAM -->
+    <div class="scanner-panel hidden" id="sp-techstream">
+      <div class="sc-header techstream-color">
+        <div class="sc-logo">🔧</div>
+        <div>
+          <div class="sc-name">Toyota Techstream (TIS / Mini-VCI)</div>
+          <div class="sc-sub">Logiciel officiel Toyota — PC Windows — Mini-VCI ou Mongoose</div>
+        </div>
+        <div class="sc-price">Câble: 20–80€ · Logiciel: abonnement TIS</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-col">
+          <div class="sc-section-title">Fonctions clés</div>
+          <ul class="sc-list">
+            <li>Diagnostic complet tous systèmes Toyota/Lexus (moteur, hybride, CVT, ABS…)</li>
+            <li>Programmation / apprentissage clés transponder et Smart Key</li>
+            <li>Calibration capteur d'angle de volant et ESP</li>
+            <li>Réinitialisation batterie HV hybride (SOH reset)</li>
+            <li>Apprentissage injecteurs (compensation injection)</li>
+            <li>Tests actifs : injecteurs, EGR, pompe à vide, VSC…</li>
+            <li>Lecture données hybride : SOC, température cellules, tension HV</li>
+            <li>Flash ECU (mises à jour calibration)</li>
+            <li>Historique pannes avec kilométrage</li>
+          </ul>
+          <div class="sc-section-title" style="margin-top:1rem;">Marques couvertes</div>
+          <div class="sc-tags">
+            <span class="sc-tag">Toyota (toutes)</span><span class="sc-tag">Lexus</span>
+            <span class="sc-tag">Daihatsu (partiel)</span>
+          </div>
+        </div>
+        <div class="sc-col">
+          <div class="sc-section-title">Procédure type — Diagnostic hybride</div>
+          <ol class="sc-steps">
+            <li>Connecter le câble Mini-VCI (USB) sur port OBD2 — véhicule en mode READY</li>
+            <li>Ouvrir Techstream → le VIN est détecté automatiquement</li>
+            <li><em>Powertrain</em> → <em>HV Battery System</em> → <em>Trouble Codes</em></li>
+            <li>Lire les codes P3xxx et P0Axx → noter le freeze frame (SOC, tension HV, T° cellules)</li>
+            <li><em>Data List</em> → sélectionner : <em>HV Battery Voltage</em>, <em>HV Battery Current</em>, <em>Battery Block Voltage 1–16</em></li>
+            <li>Identifier les blocs de cellules avec tension déviante (écart &gt; 0,3V suspect)</li>
+            <li>Si remplacement batterie : <em>Utility</em> → <em>HV Battery System</em> → <em>Battery Reset</em></li>
+            <li>Après réparation : effacer codes, faire 3 cycles charge/décharge pour calibrer le BMS</li>
+          </ol>
+          <div class="alert ad" style="margin:0;font-size:.8rem;">🚨 Ne jamais travailler sur le circuit HV sans EPI (gants isolants 1000V, tapis isolant). Couper le service plug AVANT toute intervention physique.</div>
+        </div>
+      </div>
+      <div class="sc-cap-grid">
+        <div class="sc-cap yes">Lecture/Effacement codes</div>
+        <div class="sc-cap yes">Données temps réel</div>
+        <div class="sc-cap yes">Tests actifs</div>
+        <div class="sc-cap yes">Flash ECU</div>
+        <div class="sc-cap yes">Hybride HV</div>
+        <div class="sc-cap yes">Programmation clés</div>
+        <div class="sc-cap yes">CVT adaptation</div>
+        <div class="sc-cap partial">ADAS calibration</div>
+        <div class="sc-cap no">Remote diag</div>
+        <div class="sc-cap yes">Reset services</div>
+      </div>
+    </div>
+
+    <!-- ISTA BMW -->
+    <div class="scanner-panel hidden" id="sp-ista">
+      <div class="sc-header ista-color">
+        <div class="sc-logo">📊</div>
+        <div>
+          <div class="sc-name">BMW ISTA (Integrated Service Technical Application)</div>
+          <div class="sc-sub">Logiciel officiel BMW Group — PC Windows — Interface ENET / ICOM</div>
+        </div>
+        <div class="sc-price">Interface: 30–300€ · Logiciel: ISTA-D gratuit / ISTA-P pro</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-col">
+          <div class="sc-section-title">Fonctions clés</div>
+          <ul class="sc-list">
+            <li>Diagnostic guidé avec arbre de décision intégré</li>
+            <li>Codage modules (FDL — Feature Data List)</li>
+            <li>Programmation / flash ECU (via ISTA-P / E-SYS)</li>
+            <li>Adaptation composants (batterie, volant, capteurs)</li>
+            <li>Réinitialisation CBS (service conditions)</li>
+            <li>Tests actifs : pompe carburant, EMF frein, DME…</li>
+            <li>Lecture réseau CAN étendu (tous modules)</li>
+            <li>Historique ateliers (Work Orders)</li>
+            <li>Compatible B58, S58, moteurs electrifiés i3/i4/iX</li>
+          </ul>
+          <div class="sc-section-title" style="margin-top:1rem;">Marques couvertes</div>
+          <div class="sc-tags">
+            <span class="sc-tag">BMW (toutes séries)</span><span class="sc-tag">Mini</span>
+            <span class="sc-tag">BMW M</span><span class="sc-tag">BMW i (électrique)</span>
+            <span class="sc-tag">Rolls-Royce (partiel)</span>
+          </div>
+        </div>
+        <div class="sc-col">
+          <div class="sc-section-title">Procédure type — Codage batterie neuve</div>
+          <ol class="sc-steps">
+            <li>Connecter interface ENET (câble RJ45 ↔ OBD2) ou ICOM Next</li>
+            <li>Ouvrir ISTA → sélectionner <em>Vehicle Identification</em> → laisser le VIN s'auto-remplir</li>
+            <li>Aller dans <em>Service Functions</em> → <em>Power Management</em> → <em>Battery Registration</em></li>
+            <li>Entrer la capacité de la nouvelle batterie (Ah), le type (AGM/EFB/Gel) et la référence</li>
+            <li>Valider → ISTA recalibre le BMS pour la nouvelle batterie</li>
+            <li>Pour codage modules : <em>Vehicle Management</em> → <em>Vehicle Order</em> → modifier FDL</li>
+            <li>Pour flash ECU : utiliser <strong>E-SYS</strong> avec token expert (risque élevé — sauvegarde FA avant)</li>
+            <li>Terminer par un <em>Quick Test</em> complet pour valider l'absence de codes résiduels</li>
+          </ol>
+          <div class="alert aw" style="margin:0;font-size:.8rem;">Ne jamais interrompre une session de programmation (flash). Une coupure courant pendant le flash peut rendre le module inutilisable (brick). Utiliser une alimentation stabilisée 14,4V.</div>
+        </div>
+      </div>
+      <div class="sc-cap-grid">
+        <div class="sc-cap yes">Lecture/Effacement codes</div>
+        <div class="sc-cap yes">Données temps réel</div>
+        <div class="sc-cap yes">Tests actifs</div>
+        <div class="sc-cap yes">Codage FDL</div>
+        <div class="sc-cap yes">Flash ECU</div>
+        <div class="sc-cap yes">Enregistrement batterie</div>
+        <div class="sc-cap yes">CBS reset</div>
+        <div class="sc-cap partial">ADAS calibration</div>
+        <div class="sc-cap no">Remote diag</div>
+        <div class="sc-cap yes">BMW i électrique</div>
+      </div>
+    </div>
+
+    <!-- FORSCAN -->
+    <div class="scanner-panel hidden" id="sp-forscan">
+      <div class="sc-header forscan-color">
+        <div class="sc-logo">🚗</div>
+        <div>
+          <div class="sc-name">FORScan</div>
+          <div class="sc-sub">Logiciel PC/Android/iOS — Ford, Lincoln, Mercury, Mazda (anciens)</div>
+        </div>
+        <div class="sc-price">Gratuit (basique) · Abonnement étendu ~12$/an</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-col">
+          <div class="sc-section-title">Fonctions clés</div>
+          <ul class="sc-list">
+            <li>Lecture / effacement codes tous modules (PCM, TCM, ABS, PATS, BCM…)</li>
+            <li>Données temps réel toutes ECUs</li>
+            <li>Programmation PATS (anti-démarrage) et clés</li>
+            <li>Modification paramètres (As-Built data) — personnalisation profonde</li>
+            <li>Activation/désactivation fonctions constructeur (auto-lock, désembuage…)</li>
+            <li>Reset adaptation boîte automatique</li>
+            <li>Test actifs : pompe, injecteurs, EGR, embrayage TCC</li>
+            <li>Réinitialisation TPMS, huile, freins</li>
+            <li>Compatible ELM327 MS-CAN modifié (câble spécial pour accès tous modules)</li>
+          </ul>
+          <div class="sc-section-title" style="margin-top:1rem;">Marques couvertes</div>
+          <div class="sc-tags">
+            <span class="sc-tag">Ford</span><span class="sc-tag">Lincoln</span>
+            <span class="sc-tag">Mercury</span><span class="sc-tag">Mazda (pré-2012)</span>
+          </div>
+        </div>
+        <div class="sc-col">
+          <div class="sc-section-title">Procédure type — Modification As-Built</div>
+          <ol class="sc-steps">
+            <li>Utiliser un adaptateur ELM327 compatible HS-CAN + MS-CAN (câble modifié recommandé)</li>
+            <li>Ouvrir FORScan → se connecter → sélectionner le véhicule</li>
+            <li>Aller dans <em>Modules Configuration</em> → choisir le module cible (ex: BCM)</li>
+            <li>Cliquer sur <em>As-Built</em> → noter la valeur d'origine (copier dans un fichier texte)</li>
+            <li>Modifier le bit ou nibble correspondant à la fonction souhaitée</li>
+            <li>Écrire la nouvelle valeur → confirmer → attendre la confirmation</li>
+            <li>Tester la fonction modifiée (ex: clignotants de fermeture, klaxon à la fermeture…)</li>
+            <li>En cas de problème : restaurer la valeur As-Built d'origine</li>
+          </ol>
+          <div class="alert ai" style="margin:0;font-size:.8rem;">Consulter le forum FORScan.org pour les valeurs As-Built par modèle et année. Une mauvaise modification peut désactiver des systèmes de sécurité.</div>
+        </div>
+      </div>
+      <div class="sc-cap-grid">
+        <div class="sc-cap yes">Lecture/Effacement codes</div>
+        <div class="sc-cap yes">Données temps réel</div>
+        <div class="sc-cap yes">Tests actifs</div>
+        <div class="sc-cap yes">As-Built config</div>
+        <div class="sc-cap yes">PATS/Clés</div>
+        <div class="sc-cap yes">Reset services</div>
+        <div class="sc-cap no">ADAS calibration</div>
+        <div class="sc-cap no">Remote diag</div>
+        <div class="sc-cap yes">MS-CAN modules</div>
+        <div class="sc-cap yes">Gratuit (basique)</div>
+      </div>
+    </div>
+
+    <!-- AUTEL -->
+    <div class="scanner-panel hidden" id="sp-autel">
+      <div class="sc-header autel-color">
+        <div class="sc-logo">🔌</div>
+        <div>
+          <div class="sc-name">Autel MaxiSYS MS906 Pro / MS908S / Ultra</div>
+          <div class="sc-sub">Scanner Android professionnel — Rival direct du Launch X431</div>
+        </div>
+        <div class="sc-price">600 – 3 500 €</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-col">
+          <div class="sc-section-title">Fonctions clés</div>
+          <ul class="sc-list">
+            <li>Diagnostic OE-level 80+ marques, toutes ECUs</li>
+            <li>TPMS complet (lecture, programmation capteurs MX-Sensor)</li>
+            <li>Calibration ADAS (caméras, radars, LiDAR)</li>
+            <li>Oscilloscope / multimètre intégré (MaxiSYS Ultra)</li>
+            <li>Bi-directionnel : tous tests actifs</li>
+            <li>Codage ECU, adaptation modules</li>
+            <li>Programmation clés (MaxiIM)</li>
+            <li>Mise à jour OTA Wi-Fi (abonnement annuel)</li>
+            <li>Remote Expert : connexion à technicien Autel en direct</li>
+          </ul>
+        </div>
+        <div class="sc-col">
+          <div class="sc-section-title">Procédure type — Calibration ADAS</div>
+          <ol class="sc-steps">
+            <li>Garer le véhicule sur sol plat, désactiver l'ESP</li>
+            <li>Ouvrir Autel → <em>ADAS</em> → sélectionner marque et système (ex: caméra frontale)</li>
+            <li>Suivre la procédure de positionnement du panneau de calibration (distance, alignement)</li>
+            <li>Connecter le MaxiSYS et lancer la procédure de calibration statique</li>
+            <li>Le scanner guide chaque étape avec instructions et confirmations visuelles</li>
+            <li>Valider le résultat → effacer les codes ADAS résiduels</li>
+            <li>Faire un test routier pour confirmer le bon fonctionnement (lane assist, AEB…)</li>
+          </ol>
+          <div class="alert aw" style="margin:0;font-size:.8rem;">La calibration ADAS nécessite un espace de travail adapté (sol plat, marquages au sol, éclairage uniforme). Une mauvaise calibration peut rendre les systèmes d'aide à la conduite dangereux.</div>
+        </div>
+      </div>
+      <div class="sc-cap-grid">
+        <div class="sc-cap yes">Lecture/Effacement codes</div>
+        <div class="sc-cap yes">Données temps réel</div>
+        <div class="sc-cap yes">Tests actifs</div>
+        <div class="sc-cap yes">Codage ECU</div>
+        <div class="sc-cap yes">ADAS calibration</div>
+        <div class="sc-cap yes">TPMS programmation</div>
+        <div class="sc-cap yes">Oscilloscope intégré</div>
+        <div class="sc-cap yes">Remote Expert</div>
+        <div class="sc-cap yes">Programmation clés</div>
+        <div class="sc-cap yes">OTA mises à jour</div>
+      </div>
+    </div>
+
+    <!-- HDS HONDA -->
+    <div class="scanner-panel hidden" id="sp-hds">
+      <div class="sc-header hds-color">
+        <div class="sc-logo">🏍️</div>
+        <div>
+          <div class="sc-name">Honda Diagnostic System (HDS / i-HDS)</div>
+          <div class="sc-sub">Logiciel officiel Honda/Acura — PC Windows — Interface HIM ou 3-pin</div>
+        </div>
+        <div class="sc-price">Interface: 50–200€ · Logiciel: abonnement Hondatech</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-col">
+          <div class="sc-section-title">Fonctions clés</div>
+          <ul class="sc-list">
+            <li>Diagnostic complet tous systèmes Honda/Acura</li>
+            <li>Apprentissage injecteurs (compensation cylindre)</li>
+            <li>Initialisation boîte CVT (Idle Learn, Throttle Body Learn)</li>
+            <li>Programmation clés immobiliseur Honda (avec PassCode)</li>
+            <li>Calibration capteur direction EPS</li>
+            <li>Reset batterie IMA (Honda Hybrid)</li>
+            <li>Tests actifs : VTEC, pompe carburant, EGR…</li>
+            <li>Lecture données moteur hybride IMA/i-MMD</li>
+          </ul>
+        </div>
+        <div class="sc-col">
+          <div class="sc-section-title">Procédure type — Initialisation CVT</div>
+          <ol class="sc-steps">
+            <li>Connecter HDS → sélectionner <em>A/T — CVT</em></li>
+            <li>Aller dans <em>Miscellaneous Test</em> → <em>CVT Initialize</em></li>
+            <li>Suivre la procédure : moteur à température normale, pied sur frein, sélecteur en P</li>
+            <li>Confirmer la procédure → attendre la fin de l'apprentissage (2–5 min)</li>
+            <li>Faire un test routier : accélérations progressives, D → L → D</li>
+            <li>Re-lire les codes CVT pour confirmer l'absence de défauts résiduels</li>
+          </ol>
+        </div>
+      </div>
+      <div class="sc-cap-grid">
+        <div class="sc-cap yes">Lecture/Effacement codes</div>
+        <div class="sc-cap yes">Données temps réel</div>
+        <div class="sc-cap yes">Tests actifs</div>
+        <div class="sc-cap yes">CVT initialisation</div>
+        <div class="sc-cap yes">Hybride IMA/i-MMD</div>
+        <div class="sc-cap partial">Programmation clés</div>
+        <div class="sc-cap yes">EPS calibration</div>
+        <div class="sc-cap no">ADAS calibration</div>
+        <div class="sc-cap no">Remote diag</div>
+        <div class="sc-cap yes">VTEC test actif</div>
+      </div>
+    </div>
+
+    <!-- CONSULT NISSAN -->
+    <div class="scanner-panel hidden" id="sp-consult">
+      <div class="sc-header consult-color">
+        <div class="sc-logo">🔩</div>
+        <div>
+          <div class="sc-name">Nissan Consult III Plus</div>
+          <div class="sc-sub">Logiciel officiel Nissan/Infiniti — PC Windows — Interface VI (Vehicle Interface)</div>
+        </div>
+        <div class="sc-price">Interface: 200–600€ · Logiciel: abonnement ASIST</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-col">
+          <div class="sc-section-title">Fonctions clés</div>
+          <ul class="sc-list">
+            <li>Diagnostic tous systèmes Nissan/Infiniti/Renault (partiel)</li>
+            <li>Reprogrammation / flash ECU (PCM, TCM, BCM…)</li>
+            <li>Apprentissage clés Intelligent Key et immobiliseur NATS</li>
+            <li>Initialisation boîte CVT Jatco (Ratio Learning)</li>
+            <li>Calibration capteurs ADAS ProPilot</li>
+            <li>Tests actifs : injecteurs, EGR, VVT, embrayage…</li>
+            <li>Diagnostic LEAF / Ariya (batterie électrique 40/62kWh)</li>
+            <li>Données temps réel toutes ECUs</li>
+          </ul>
+        </div>
+        <div class="sc-col">
+          <div class="sc-section-title">Procédure type — Flash ECU</div>
+          <ol class="sc-steps">
+            <li>Connecter l'interface VI Consult III (USB/WiFi) — alimentation stabilisée 14,4V obligatoire</li>
+            <li>Ouvrir Consult → <em>Re/programming, Configuration</em></li>
+            <li>Sélectionner le module à flasher → Consult vérifie la compatibilité du fichier</li>
+            <li>Confirmer → NE PAS couper le contact pendant toute la procédure (10–30 min)</li>
+            <li>Après le flash : Consult effectue automatiquement les adaptations post-programmation</li>
+            <li>Vérifier l'absence de codes résiduels → test routier</li>
+          </ol>
+          <div class="alert ad" style="margin:0;font-size:.8rem;">🚨 Le flash Consult III nécessite un abonnement ASIST actif et une connexion internet pendant la procédure pour valider la licence du fichier de calibration.</div>
+        </div>
+      </div>
+      <div class="sc-cap-grid">
+        <div class="sc-cap yes">Lecture/Effacement codes</div>
+        <div class="sc-cap yes">Données temps réel</div>
+        <div class="sc-cap yes">Tests actifs</div>
+        <div class="sc-cap yes">Flash ECU</div>
+        <div class="sc-cap yes">CVT Jatco</div>
+        <div class="sc-cap yes">Intelligent Key</div>
+        <div class="sc-cap yes">LEAF électrique</div>
+        <div class="sc-cap partial">ADAS ProPilot</div>
+        <div class="sc-cap no">Remote diag</div>
+        <div class="sc-cap yes">NATS immobiliseur</div>
+      </div>
+    </div>
+
+    <!-- STAR MERCEDES -->
+    <div class="scanner-panel hidden" id="sp-star">
+      <div class="sc-header star-color">
+        <div class="sc-logo">⭐</div>
+        <div>
+          <div class="sc-name">Mercedes-Benz STAR Diagnosis (XENTRY / DAS)</div>
+          <div class="sc-sub">Logiciel officiel Mercedes — PC Windows — Interface Multiplexer C5/C6</div>
+        </div>
+        <div class="sc-price">Interface clone: 200–800€ · Officiel: abonnement dealer</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-col">
+          <div class="sc-section-title">Fonctions clés</div>
+          <ul class="sc-list">
+            <li>Diagnostic guidé avec symptôme → arbre de décision → pièce</li>
+            <li>SCN Coding (codage sécurisé via serveur Mercedes)</li>
+            <li>Variant coding (paramétrage équipements)</li>
+            <li>Flash ECU via XENTRY (tous modules)</li>
+            <li>Apprentissage clés et ESL (Electronic Steering Lock)</li>
+            <li>Calibration suspension pneumatique AIRMATIC</li>
+            <li>Adaptation embrayage 7G-Tronic / 9G-Tronic</li>
+            <li>Diagnostic EQ (électrique) — batterie 400V, OBC, pompe thermique</li>
+            <li>MOST bus et Flexray (systèmes multimédia haut de gamme)</li>
+          </ul>
+        </div>
+        <div class="sc-col">
+          <div class="sc-section-title">Procédure type — SCN Coding</div>
+          <ol class="sc-steps">
+            <li>Connecter le multiplexeur C5/C6 → ouvrir XENTRY → sélectionner véhicule par VIN</li>
+            <li>Aller dans le module concerné → <em>Control Unit Adaptations</em></li>
+            <li>Sélectionner <em>SCN Coding</em> → XENTRY se connecte aux serveurs MB pour valider</li>
+            <li>Le code SCN est calculé sur le serveur en fonction du VIN + numéro de pièce</li>
+            <li>Le code est automatiquement écrit dans le module</li>
+            <li>Valider → tester le système — certains modules nécessitent un cycle contact</li>
+          </ol>
+          <div class="alert ai" style="margin:0;font-size:.8rem;">Le SCN Coding nécessite une connexion internet et un accès au portail Mercedes (payant hors réseau agréé). Les interfaces clones peuvent ne pas supporter toutes les fonctions SCN.</div>
+        </div>
+      </div>
+      <div class="sc-cap-grid">
+        <div class="sc-cap yes">Lecture/Effacement codes</div>
+        <div class="sc-cap yes">Données temps réel</div>
+        <div class="sc-cap yes">Tests actifs</div>
+        <div class="sc-cap yes">SCN Coding</div>
+        <div class="sc-cap yes">Flash ECU</div>
+        <div class="sc-cap yes">AIRMATIC</div>
+        <div class="sc-cap yes">7G/9G-Tronic</div>
+        <div class="sc-cap yes">EQ électrique</div>
+        <div class="sc-cap partial">Remote diag</div>
+        <div class="sc-cap yes">ESL steering lock</div>
+      </div>
+    </div>
+
+    <!-- GDS HYUNDAI/KIA -->
+    <div class="scanner-panel hidden" id="sp-gds">
+      <div class="sc-header gds-color">
+        <div class="sc-logo">🇰🇷</div>
+        <div>
+          <div class="sc-name">GDS (Global Diagnostic System) — Hyundai / Kia / Genesis</div>
+          <div class="sc-sub">Logiciel officiel HMG — PC Windows — Interface VCI (USB/Bluetooth)</div>
+        </div>
+        <div class="sc-price">Interface: 100–400€ · Logiciel: abonnement GDS Mobile</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-col">
+          <div class="sc-section-title">Fonctions clés</div>
+          <ul class="sc-list">
+            <li>Diagnostic complet tous systèmes Hyundai/Kia/Genesis</li>
+            <li>Programmation clés et immobiliseur</li>
+            <li>Variant coding (options d'équipement)</li>
+            <li>Flash ECU (PCM, TCM, BCM, FATC…)</li>
+            <li>Calibration capteur direction MDPS (EPS)</li>
+            <li>Initialisation boîte DCT (Dual Clutch Transmission)</li>
+            <li>Diagnostic batterie haute tension (IONIQ, EV6, Tucson PHEV…)</li>
+            <li>Tests actifs : injecteurs GDI, EGR, turbo, pompe…</li>
+            <li>Réinitialisation services et TPMS</li>
+          </ul>
+        </div>
+        <div class="sc-col">
+          <div class="sc-section-title">Procédure type — Initialisation DCT</div>
+          <ol class="sc-steps">
+            <li>Connecter VCI → ouvrir GDS → sélectionner le modèle</li>
+            <li>Aller dans <em>Transmission — DCT</em> → <em>Special Function</em></li>
+            <li>Sélectionner <em>Clutch Contact Point Learning</em></li>
+            <li>Moteur à température, véhicule arrêté, pied sur frein, sélecteur en N</li>
+            <li>Lancer la procédure → le GDS contrôle automatiquement les embrayages (3–8 min)</li>
+            <li>Valider → passer en D → tester les changements de vitesses doux</li>
+            <li>Si vibrations persistent : répéter la procédure ou vérifier l'état des disques</li>
+          </ol>
+        </div>
+      </div>
+      <div class="sc-cap-grid">
+        <div class="sc-cap yes">Lecture/Effacement codes</div>
+        <div class="sc-cap yes">Données temps réel</div>
+        <div class="sc-cap yes">Tests actifs</div>
+        <div class="sc-cap yes">Flash ECU</div>
+        <div class="sc-cap yes">DCT initialisation</div>
+        <div class="sc-cap yes">MDPS calibration</div>
+        <div class="sc-cap yes">EV/PHEV batterie</div>
+        <div class="sc-cap partial">ADAS calibration</div>
+        <div class="sc-cap yes">Programmation clés</div>
+        <div class="sc-cap yes">GDI injecteurs</div>
+      </div>
+    </div>
+
+    <!-- Comparison table -->
+    <div class="sec-title" style="margin-top:2.5rem;">📊 Tableau comparatif rapide</div>
+    <div style="overflow-x:auto;">
+      <table class="cmp-table">
+        <thead>
+          <tr>
+            <th>Scanner</th><th>Marques</th><th>Codage</th><th>Flash</th><th>ADAS</th><th>Clés</th><th>Prix</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Launch X431 Pro5</strong></td><td>200+</td><td>✅</td><td>✅</td><td>✅</td><td>⚠️</td><td>800–2500€</td></tr>
+          <tr><td><strong>Autel MaxiSYS Ultra</strong></td><td>80+</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>2000–3500€</td></tr>
+          <tr><td><strong>VCDS Ross-Tech</strong></td><td>VAG uniquement</td><td>✅✅</td><td>⚠️</td><td>❌</td><td>⚠️</td><td>300–400€</td></tr>
+          <tr><td><strong>Techstream Toyota</strong></td><td>Toyota/Lexus</td><td>✅</td><td>✅</td><td>⚠️</td><td>✅</td><td>20–80€ câble</td></tr>
+          <tr><td><strong>ISTA BMW</strong></td><td>BMW/Mini</td><td>✅✅</td><td>✅</td><td>⚠️</td><td>✅</td><td>30–300€ interface</td></tr>
+          <tr><td><strong>FORScan</strong></td><td>Ford/Lincoln</td><td>✅</td><td>❌</td><td>❌</td><td>✅</td><td>Gratuit</td></tr>
+          <tr><td><strong>HDS Honda</strong></td><td>Honda/Acura</td><td>✅</td><td>⚠️</td><td>❌</td><td>⚠️</td><td>50–200€ interface</td></tr>
+          <tr><td><strong>Consult III Nissan</strong></td><td>Nissan/Infiniti</td><td>✅</td><td>✅</td><td>⚠️</td><td>✅</td><td>200–600€</td></tr>
+          <tr><td><strong>XENTRY Mercedes</strong></td><td>Mercedes/AMG</td><td>✅✅</td><td>✅</td><td>✅</td><td>✅</td><td>200–800€ clone</td></tr>
+          <tr><td><strong>GDS Hyundai/Kia</strong></td><td>HMG Group</td><td>✅</td><td>✅</td><td>⚠️</td><td>✅</td><td>100–400€</td></tr>
+          <tr><td><strong>ELM327 + app</strong></td><td>Tous (OBD2 basique)</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>10–35€</td></tr>
+        </tbody>
+      </table>
+      <div style="font-size:.72rem;color:var(--m);margin-top:.5rem;">✅ Supporté · ✅✅ Niveau OEM complet · ⚠️ Partiel/limité · ❌ Non supporté</div>
+    </div>
+
+    <!-- General procedure -->
+    <div class="sec-title" style="margin-top:2rem;">⚙️ Procédure générale de diagnostic</div>
+    <ol class="sl2">
+      <li>Brancher le scanner OBD2 sur le port DLC (moteur allumé ou clé sur position MAR/ON)</li>
+      <li>Lire TOUS les codes défauts présents — noter les codes actifs ET en mémoire (pendants)</li>
+      <li>Photographier les données du freeze frame (conditions au moment du défaut: régime, charge, température)</li>
+      <li>Rechercher chaque code dans cette base pour identifier les causes probables et probabilités</li>
+      <li>Vérifier d'abord les causes simples : niveaux, câblage, connecteurs, fusibles</li>
+      <li>Effectuer les tests de diagnostic dans l'ordre (du plus simple au plus complexe)</li>
+      <li>Réparer ou remplacer les composants défectueux identifiés</li>
+      <li>Effacer les codes défauts après réparation</li>
+      <li>Faire un test routier de 20–30 km incluant les conditions qui ont déclenché le défaut</li>
+      <li>Relire les codes pour confirmer que le défaut ne revient pas (cycle drive complet)</li>
+    </ol>
+  </div>
+
+  <div id="tab-glossary" class="tc">
+    <div class="sec-title">📖 Glossaire technique automobile</div>
+    <input type="text" class="si" id="glossarySearch" placeholder="Rechercher un terme…" oninput="renderGlossary()" style="margin-bottom:1rem;max-width:400px;font-size:.9rem;letter-spacing:0;text-transform:none;">
+    <div class="cg" id="glossaryGrid"></div>
+  </div>
+</main>
+
+<footer>
+  <strong>AutoDiag Pro</strong> — Base de données OBD2/DTC complète pour véhicules importés<br>
+  <span style="font-size:.73rem;opacity:.55;">Usage informatif uniquement. Consultez un professionnel pour tout doute concernant la sécurité du véhicule. Les prix indiqués sont des estimations pour l'Europe/Afrique du Nord.</span>
+</footer>
+
+<script>
+function showScanner(id, btn) {
+  document.querySelectorAll(".scanner-panel").forEach(p => { p.classList.remove("active"); p.style.display = "none"; });
+  document.querySelectorAll(".schip").forEach(b => b.classList.remove("active"));
+  const panel = document.getElementById("sp-" + id);
+  if (panel) { panel.style.display = "block"; panel.classList.add("active"); }
+  if (btn) btn.classList.add("active");
+}
+// Show first panel on load
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".scanner-panel").forEach((p, i) => { p.style.display = i === 0 ? "block" : "none"; });
+});
+</script>
+<script src="dtc-db.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
