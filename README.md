@@ -1,0 +1,2 @@
+# AMDiag
+AMDiag-auto
